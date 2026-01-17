@@ -66,10 +66,7 @@ C:\xampp\htdocs\doanphp\
         $dbname = "shop";
         ```
 
-3.  **Chạy thiết lập hệ thống (Tùy chọn):**
-    -   Truy cập `http://localhost/doanphp/Controller/SystemSetup.php` để kiểm tra kết nối database và tạo/kiểm tra các bảng như `order_details`.
-
-4.  **Cấu hình Email:**
+3.  **Cấu hình Email:**
     -   Nếu sử dụng tính năng "Quên mật khẩu", hãy đảm bảo `Controller/forgot-password.php` (hoặc file gửi mail liên quan) có thông tin SMTP hợp lệ để gửi email.
 
 ## Hướng dẫn sử dụng
