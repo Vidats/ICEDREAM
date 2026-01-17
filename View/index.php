@@ -24,12 +24,31 @@ $feedbacks = array_slice($feedbacks, 0, 4); // Lấy 4 đánh giá mới nhất
 
         <h1 class="display-3">Hương Vị Mùa Hè</h1>
         <p class="fs-4">Khám phá bộ sưu tập kem tươi mát lạnh, giải nhiệt ngày hè.</p>
-        <a href="sanpham.php" class="btn btn-hero ">Xem Sản Phẩm</a>
+        <a href="sanpham.php" class="btn btn-hero ">Xem Sản Phẩm</a><br>
+        <button id="openQuizBtn" class="btn text-white shadow-sm" style="background-color: #ff85a2; border-radius: 25px; padding: 10px 25px;">
+    Chơi Game Nhận Voucher 🎁
+        </button>
+        
     </div>
 </div>
 
 <div class="container py-5">
     <h2 class="section-title text-center mb-5">🍦 Sản Phẩm Nổi Bật</h2>
+    
+
+<div class="modal fade" id="quizModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 20px; border: none;">
+            <div class="modal-header" style="background: linear-gradient(to right, #FFB7B2, #FFDAC1); border: none;">
+                <h5 class="modal-title fw-bold text-white">Thử Thách Icedream 🍦</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="quizContent" style="min-height: 300px;">
+                <iframe src="quiz.php" id="quizIframe" style="width: 100%; height: 450px; border: none;"></iframe>
+            </div>
+        </div>
+    </div>
+</div>
 
     <div class="row g-4"> 
         <?php
@@ -123,5 +142,13 @@ if (bannerImg) {
     }, 4000); // 4 giây đổi 1 lần
 }
 </script>
-
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.getElementById('openQuizBtn').addEventListener('click', function() {
+        var myModal = new bootstrap.Modal(document.getElementById('quizModal'));
+        myModal.show();
+        // Reset lại game mỗi khi mở
+        document.getElementById('quizIframe').src = 'quiz.php';
+    });
+</script>
 <?php include 'footer.php'; ?>

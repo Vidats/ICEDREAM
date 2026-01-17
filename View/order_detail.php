@@ -6,7 +6,11 @@ require_once '../Model/order.php';
 
 // Kiểm tra đăng nhập
 if (!isset($_SESSION['user_id'])) {
-    echo "<script>alert('Vui lòng đăng nhập!'); window.location='form.php';</script>";
+    $_SESSION['swal_type'] = 'warning';
+    $_SESSION['swal_title'] = 'Thông báo';
+    $_SESSION['swal_message'] = 'Vui lòng đăng nhập!';
+    $_SESSION['swal_redirect'] = 'form.php';
+    header("Location: form.php");
     exit();
 }
 
@@ -43,7 +47,7 @@ $details = $orderModel->getOrderDetails($order_id);
                 <div class="col-md-6">
                     <h5 class="card-title">Thông tin giao hàng</h5>
                     <p class="mb-1"><strong>Người nhận:</strong> <?= htmlspecialchars($order['full_name']) ?></p>
-                    <p class="mb-1"><strong>Số điện thoại:</strong> <?= htmlspecialchars($order['email']) // Lưu ý: Database dùng cột email để lưu SDT hoặc Email tuỳ form? Trong form order.php có vẻ lưu cả 2 hoặc dùng chung. Tạm hiển thị cột email ?></p>
+                    <p class="mb-1"><strong>Email:</strong> <?= htmlspecialchars($order['email']) // Lưu ý: Database dùng cột email để lưu SDT hoặc Email tuỳ form? Trong form order.php có vẻ lưu cả 2 hoặc dùng chung. Tạm hiển thị cột email ?></p>
                     <p class="mb-1"><strong>Địa chỉ:</strong> <?= htmlspecialchars($order['address']) ?></p>
                 </div>
                 <div class="col-md-6 text-md-end">

@@ -1,12 +1,13 @@
 <?php
-require_once __DIR__ . '/layouts/header.php';
 require_once __DIR__ . '/../../Model/db.php';
 require_once __DIR__ . '/../controller/OrderController.php';
 
 $orderController = new OrderController($conn);
 
-// Handle Status Update (POST)
+// Handle Status Update (POST) - Must be before any output
 $orderController->updateStatus(); 
+
+require_once __DIR__ . '/layouts/header.php';
 
 // Fetch Orders
 $orders = $orderController->getAllOrders();
@@ -17,21 +18,8 @@ $orders = $orderController->getAllOrders();
     <div class="text-muted">Theo dõi và xử lý đơn đặt hàng</div>
 </div>
 
-<?php if(isset($_GET['status'])): ?>
-    <?php if($_GET['status'] == 'success'): ?>
-        <div class="alert alert-success alert-dismissible fade show shadow-sm">
-            <i class="fas fa-check-circle me-2"></i> Cập nhật trạng thái đơn hàng thành công!
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    <?php elseif($_GET['status'] == 'error'): ?>
-        <div class="alert alert-danger alert-dismissible fade show shadow-sm">
-            <i class="fas fa-exclamation-circle me-2"></i> Có lỗi xảy ra. Vui lòng thử lại!
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    <?php endif; ?>
-<?php endif; ?>
-
 <div class="card border-0 shadow-sm overflow-hidden">
+
     <div class="table-responsive">
         <table class="table table-hover align-middle mb-0">
             <thead class="bg-light text-secondary">

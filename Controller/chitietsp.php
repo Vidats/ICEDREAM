@@ -18,7 +18,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_to_cart'])) {
 
     if ($soluong > 0) {
         $giohangModel->addToCart($id, $soluong); 
-        header('Location: giohang.php');
+        
+        $_SESSION['swal_type'] = 'success';
+        $_SESSION['swal_title'] = 'Thành công!';
+        $_SESSION['swal_message'] = 'Đã thêm sản phẩm vào giỏ hàng!';
+        
+        // Redirect back to the same page (detail page)
+        header('Location: ' . $_SERVER['HTTP_REFERER']);
         exit();
     }
 }
@@ -31,7 +37,9 @@ if (isset($_GET['id'])) {
     if (!$product) {
         die("Sản phẩm không tồn tại.");
     }
-} else {
+
+    // Lấy danh sách sản phẩm gợi ý (AI/Recommendation)
+$recommendations = $sanphamModel->getRecommendedProducts($product['id'], $product['category_id']);} else {
     die("Không tìm thấy ID sản phẩm.");
 }
 ?>

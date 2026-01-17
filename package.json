@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "@dotlottie/player-component": "^2.7.12",
+    "simplebar": "^6.3.3",
+    "sweetalert2": "^11.26.17"
+  }
+}

@@ -33,10 +33,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
         }
         
         $giohangModel->clearCart(); 
+        
+        $_SESSION['swal_type'] = 'success';
+        $_SESSION['swal_title'] = 'Đặt hàng thành công!';
+        $_SESSION['swal_message'] = 'Cảm ơn bạn đã tin tưởng chọn Icedream!';
+        $_SESSION['swal_order_success'] = true; // Flag for Lottie animation
+        $_SESSION['swal_redirect'] = 'my_order.php';
+        
         header('Location: ../View/my_order.php');
         exit();
     } else {
-        echo "Lỗi hệ thống khi đặt hàng: " . $conn->error;
+        $_SESSION['swal_type'] = 'error';
+        $_SESSION['swal_title'] = 'Lỗi!';
+        $_SESSION['swal_message'] = 'Lỗi hệ thống khi đặt hàng: ' . $conn->error;
+        header('Location: ' . $_SERVER['HTTP_REFERER']);
+        exit();
     }
 }
 ?>

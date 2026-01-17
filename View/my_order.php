@@ -3,15 +3,14 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+require_once '../Model/db.php';
+require_once '../Model/order.php';
+require_once '../Model/FeedbackModel.php';
+
 if (!isset($_SESSION['user_id'])) {
     header("Location: form.php?tab=login");
     exit();
 }
-
-include 'header.php'; 
-require_once '../Model/order.php';
-require_once '../Model/db.php';
-require_once '../Model/FeedbackModel.php';
 
 $orderModel = new OrderModel($conn);
 $feedbackModel = new FeedbackModel($conn);
@@ -20,9 +19,15 @@ if (isset($_POST['cancel_order'])) {
     $order_id = $_POST['order_id'];
     
     if ($orderModel->updateOrderStatus($order_id, 'Đã hủy')) {
-        echo "<script>alert('Đã hủy đơn hàng thành công!'); window.location='my_order.php';</script>";
+        $_SESSION['swal_type'] = 'success';
+        $_SESSION['swal_title'] = 'Thành công!';
+        $_SESSION['swal_message'] = 'Đã hủy đơn hàng thành công!';
+        header("Location: my_order.php");
+        exit();
     }
 }
+
+include 'header.php'; 
 
 $user_id = $_SESSION['user_id'];
 $orders = $orderModel->getOrdersByUser($user_id);

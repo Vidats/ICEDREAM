@@ -25,6 +25,28 @@ class DatabaseSetup {
         }
     }
 
+    public function createDanhMucTable() {
+        $sql = "CREATE TABLE IF NOT EXISTS danhmuc (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            name VARCHAR(255) NOT NULL
+        )";
+
+        if ($this->conn->query($sql) === TRUE) {
+            return "Table 'danhmuc' created/checked successfully.";
+        } else {
+            return "Error creating table: " . $this->conn->error;
+        }
+    }
+
+    public function alterProductsTableForCategories() {
+        $sql = "ALTER TABLE products ADD iddanhmuc INT NULL, ADD FOREIGN KEY (iddanhmuc) REFERENCES danhmuc(id)";
+        if ($this->conn->query($sql) === TRUE) {
+            return "Table 'products' altered for categories successfully.";
+        } else {
+            return "Error altering table: " . $this->conn->error;
+        }
+    }
+
     // Logic từ list_tables.php
     public function getAllTables() {
         $tables = [];

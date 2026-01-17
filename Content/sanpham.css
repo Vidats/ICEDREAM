@@ -1,0 +1,35 @@
+/* Định dạng chữ Pastel chuyển màu */
+.pastel-text {
+    font-weight: 800;
+    font-size: 2.5rem;
+    /* Dãy màu Pastel: Hồng (#FFB7B2) - Vàng (#FFDAC1) - Xanh dương (#B2E2F2) */
+    background: linear-gradient(
+        to right, 
+        #FFB7B2, 
+        #FFDAC1, 
+        #B2E2F2, 
+        #FFB7B2
+    );
+    background-size: 200% auto;
+    color: transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
+    /* Hiệu ứng chuyển động màu */
+    animation: gradientMove 4s linear infinite;
+}
+
+/* Định dạng dòng chữ phụ */
+.sub-title {
+    color: #888;
+    font-style: italic;
+}
+
+/* Hiệu ứng animation làm dải màu chạy qua lại */
+@keyframes gradientMove {
+    0% {
+        background-position: 0% center;
+    }
+    100% {
+        background-position: 200% center;
+    }
+}

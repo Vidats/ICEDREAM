@@ -10,7 +10,7 @@ $userCount = $conn->query("SELECT COUNT(*) as c FROM users WHERE role != 1")->fe
 $productCount = $conn->query("SELECT COUNT(*) as c FROM products")->fetch_assoc()['c'] ?? 0;
 $revenue = $conn->query("SELECT SUM(total_price) as s FROM orders WHERE status = 'Hoàn thành'")->fetch_assoc()['s'] ?? 0;
 
-// --- Fetch Revenue Chart Data (Line Chart) ---
+// --- 1. Line Chart: Doanh thu theo thời gian (12 tháng) ---
 $sqlMonthly = "SELECT DATE_FORMAT(created_at, '%m/%Y') as month, SUM(total_price) as revenue 
                FROM orders 
                WHERE status = 'Hoàn thành' 
@@ -27,8 +27,9 @@ if ($resMonthly) {
     }
 }
 
-// --- Fetch Top Selling Products Data (Doughnut Chart) ---
 $adminOrderModel = new AdminOrderModel($conn);
+
+// --- 2. Bar Chart: Top 10 sản phẩm bán chạy ---
 $topProducts = $adminOrderModel->getTopSellingProducts();
 $prodLabels = [];
 $prodData = [];
@@ -37,7 +38,35 @@ foreach ($topProducts as $prod) {
     $prodData[] = $prod['total_sold'];
 }
 
-// Fetch Feedback Stats
+// --- 3. Pie Chart: Trạng thái đơn hàng ---
+$orderStats = $adminOrderModel->getOrderStatusStats();
+$statusLabels = [];
+$statusData = [];
+$statusColors = [];
+// Map màu cho từng trạng thái
+$colorMap = [
+    'Đang xử lý' => '#ffce56', // Vàng
+    'Đang giao' => '#36a2eb', // Xanh dương
+    'Hoàn thành' => '#2ecc71', // Xanh lá
+    'Đã hủy' => '#e74c3c'      // Đỏ
+];
+
+foreach ($orderStats as $stat) {
+    $statusLabels[] = $stat['status'];
+    $statusData[] = $stat['count'];
+    $statusColors[] = $colorMap[$stat['status']] ?? '#95a5a6';
+}
+
+// --- 4. Bar Chart: Doanh thu theo danh mục ---
+$catStats = $adminOrderModel->getRevenueByCategory();
+$catLabels = [];
+$catData = [];
+foreach ($catStats as $stat) {
+    $catLabels[] = $stat['category_id'];
+    $catData[] = $stat['revenue'];
+}
+
+// Fetch Feedback Stats (Giữ nguyên)
 $feedbackModel = new FeedbackModel($conn);
 $ratingStats = $feedbackModel->getRatingStatistics();
 ?>
@@ -47,6 +76,7 @@ $ratingStats = $feedbackModel->getRatingStatistics();
     <div class="text-muted"><?= date('l, d/m/Y') ?></div>
 </div>
 
+<!-- Quick Stats Cards -->
 <div class="row g-4 mb-5">
     <!-- Card 1 -->
     <div class="col-md-3">
@@ -105,7 +135,7 @@ $ratingStats = $feedbackModel->getRatingStatistics();
     </div>
 </div>
 
-<!-- Revenue & Top Products Charts Row -->
+<!-- Row 1: Revenue Line Chart & Order Status Pie Chart -->
 <div class="row mb-5">
     <div class="col-md-8">
         <div class="card p-4 h-100 border-0 shadow-sm">
@@ -115,15 +145,31 @@ $ratingStats = $feedbackModel->getRatingStatistics();
     </div>
     <div class="col-md-4">
         <div class="card p-4 h-100 border-0 shadow-sm">
-            <h5 class="card-title mb-4 fw-bold">Top Sản Phẩm Bán Chạy</h5>
+            <h5 class="card-title mb-4 fw-bold">Trạng Thái Đơn Hàng</h5>
             <div style="position: relative; height: 300px; display: flex; justify-content: center;">
-                <canvas id="topProductsChart"></canvas>
+                <canvas id="orderStatusChart"></canvas>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Rating Stats Row -->
+<!-- Row 2: Revenue by Category & Top Products -->
+<div class="row mb-5">
+    <div class="col-md-6">
+        <div class="card p-4 h-100 border-0 shadow-sm">
+            <h5 class="card-title mb-4 fw-bold">Doanh Thu Theo Danh Mục</h5>
+            <canvas id="categoryRevenueChart" style="max-height: 350px;"></canvas>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card p-4 h-100 border-0 shadow-sm">
+            <h5 class="card-title mb-4 fw-bold">Top 10 Sản Phẩm Bán Chạy</h5>
+            <canvas id="topProductsChart" style="max-height: 350px;"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Row 3: Rating Stats -->
 <div class="row mb-5">
     <div class="col-md-4">
         <div class="card p-4 h-100 border-0 shadow-sm">
@@ -154,48 +200,8 @@ $ratingStats = $feedbackModel->getRatingStatistics();
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", function() {
-    // --- Rating Chart ---
-    const ctxRating = document.getElementById('ratingChart').getContext('2d');
-    new Chart(ctxRating, {
-        type: 'bar',
-        data: {
-            labels: ['1 Sao', '2 Sao', '3 Sao', '4 Sao', '5 Sao'],
-            datasets: [{
-                label: 'Số lượng đánh giá',
-                data: [
-                    <?= $ratingStats['stars'][1] ?>, 
-                    <?= $ratingStats['stars'][2] ?>, 
-                    <?= $ratingStats['stars'][3] ?>, 
-                    <?= $ratingStats['stars'][4] ?>, 
-                    <?= $ratingStats['stars'][5] ?>
-                ],
-                backgroundColor: [
-                    '#ff6b6b',
-                    '#ffa502',
-                    '#f1c40f',
-                    '#7bed9f',
-                    '#2ed573'
-                ],
-                borderWidth: 1,
-                borderRadius: 5
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: { stepSize: 1 }
-                }
-            },
-            plugins: {
-                legend: { display: false }
-            }
-        }
-    });
-
-    // --- Revenue Chart (Line Chart) ---
+    
+    // --- 1. Revenue Chart (Line) ---
     const ctxRevenue = document.getElementById('revenueChart').getContext('2d');
     new Chart(ctxRevenue, {
         type: 'line',
@@ -239,17 +245,15 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
-    // --- Top Products Chart (Doughnut Chart) ---
-    const ctxProducts = document.getElementById('topProductsChart').getContext('2d');
-    new Chart(ctxProducts, {
-        type: 'doughnut',
+    // --- 2. Order Status Chart (Pie) ---
+    const ctxStatus = document.getElementById('orderStatusChart').getContext('2d');
+    new Chart(ctxStatus, {
+        type: 'pie',
         data: {
-            labels: <?= json_encode($prodLabels) ?>,
+            labels: <?= json_encode($statusLabels) ?>,
             datasets: [{
-                data: <?= json_encode($prodData) ?>,
-                backgroundColor: [
-                    '#ff6384', '#36a2eb', '#ffce56', '#4bc0c0', '#9966ff'
-                ],
+                data: <?= json_encode($statusData) ?>,
+                backgroundColor: <?= json_encode($statusColors) ?>,
                 borderWidth: 1
             }]
         },
@@ -261,8 +265,107 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         }
     });
+
+    // --- 3. Category Revenue Chart (Bar) ---
+    const ctxCategory = document.getElementById('categoryRevenueChart').getContext('2d');
+    new Chart(ctxCategory, {
+        type: 'bar',
+        data: {
+            labels: <?= json_encode($catLabels) ?>,
+            datasets: [{
+                label: 'Doanh thu (VNĐ)',
+                data: <?= json_encode($catData) ?>,
+                backgroundColor: '#9b59b6',
+                borderRadius: 5
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) { return value.toLocaleString('vi-VN') + ' đ'; }
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(context.parsed.y);
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // --- 4. Top Products Chart (Bar) ---
+    const ctxProducts = document.getElementById('topProductsChart').getContext('2d');
+    new Chart(ctxProducts, {
+        type: 'bar',
+        data: {
+            labels: <?= json_encode($prodLabels) ?>,
+            datasets: [{
+                label: 'Số lượng đã bán',
+                data: <?= json_encode($prodData) ?>,
+                backgroundColor: '#ff9f43',
+                borderRadius: 5
+            }]
+        },
+        options: {
+            indexAxis: 'y', // Biểu đồ ngang
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: { beginAtZero: true }
+            }
+        }
+    });
+
+    // --- 5. Rating Chart (Bar - Existing) ---
+    const ctxRating = document.getElementById('ratingChart').getContext('2d');
+    new Chart(ctxRating, {
+        type: 'bar',
+        data: {
+            labels: ['1 Sao', '2 Sao', '3 Sao', '4 Sao', '5 Sao'],
+            datasets: [{
+                label: 'Số lượng đánh giá',
+                data: [
+                    <?= $ratingStats['stars'][1] ?>, 
+                    <?= $ratingStats['stars'][2] ?>, 
+                    <?= $ratingStats['stars'][3] ?>, 
+                    <?= $ratingStats['stars'][4] ?>, 
+                    <?= $ratingStats['stars'][5] ?>
+                ],
+                backgroundColor: [
+                    '#ff6b6b',
+                    '#ffa502',
+                    '#f1c40f',
+                    '#7bed9f',
+                    '#2ed573'
+                ],
+                borderWidth: 1,
+                borderRadius: 5
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { stepSize: 1 }
+                }
+            },
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
 });
 </script>
-
 
 <?php require_once __DIR__ . '/View/layouts/footer.php'; ?>

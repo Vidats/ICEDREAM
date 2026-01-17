@@ -18,16 +18,16 @@ if ($checkQtyCol && $checkQtyCol->num_rows === 0) {
 if ($action == 'add' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = mysqli_real_escape_string($conn, $_POST['name']);
     $price = $_POST['price'];
-    $category = $_POST['category'];
+    $category_id = intval($_POST['category_id']);
     $description = mysqli_real_escape_string($conn, $_POST['description']);
-    $quantity = isset($_POST['quantity']) ? intval($_POST['quantity']) : 0; // Mặc định 0
+    $quantity = isset($_POST['quantity']) ? intval($_POST['quantity']) : 0;
     
     $image = $_FILES['image']['name'];
-    $target = "../../image/" . basename($image);
+    $target = __DIR__ . "/../../image/" . basename($image);
 
     if (move_uploaded_file($_FILES['image']['tmp_name'], $target)) {
-        $sql = "INSERT INTO products (name, price, category, image, description, quantity) 
-                VALUES ('$name', '$price', '$category', '$image', '$description', $quantity)";
+        $sql = "INSERT INTO products (name, price, category_id, image, description, quantity) 
+                VALUES ('$name', '$price', '$category_id', '$image', '$description', $quantity)";
         $conn->query($sql);
     }
     header("Location: ../View/quanlysp.php");
@@ -39,19 +39,17 @@ if ($action == 'edit' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $id = intval($_POST['id']);
     $name = mysqli_real_escape_string($conn, $_POST['name']);
     $price = $_POST['price'];
-    $category = $_POST['category'];
+    $category_id = intval($_POST['category_id']);
     $description = mysqli_real_escape_string($conn, $_POST['description']);
     $quantity = isset($_POST['quantity']) ? intval($_POST['quantity']) : 0;
 
     if (!empty($_FILES['image']['name'])) {
         $image = $_FILES['image']['name'];
-        $target = "../../image/" . basename($image);
+        $target = __DIR__ . "/../../image/" . basename($image);
         move_uploaded_file($_FILES['image']['tmp_name'], $target);
-        // Cập nhật kèm ảnh, mô tả và số lượng
-        $sql = "UPDATE products SET name='$name', price='$price', category='$category', image='$image', description='$description', quantity=$quantity WHERE id=$id";
+        $sql = "UPDATE products SET name='$name', price='$price', category_id='$category_id', image='$image', description='$description', quantity=$quantity WHERE id=$id";
     } else {
-        // Cập nhật mô tả, số lượng nhưng giữ ảnh cũ
-        $sql = "UPDATE products SET name='$name', price='$price', category='$category', description='$description', quantity=$quantity WHERE id=$id";
+        $sql = "UPDATE products SET name='$name', price='$price', category_id='$category_id', description='$description', quantity=$quantity WHERE id=$id";
     }
 
     $conn->query($sql);

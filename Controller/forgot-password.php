@@ -47,10 +47,18 @@ if (isset($_POST['send_otp'])) {
             header("Location: ../View/verify-otp.php?email=" . $email);
             exit();
         } catch (Exception $e) {
-            echo "<script>alert('Lỗi gửi mail'); history.back();</script>";
+            $_SESSION['swal_type'] = 'error';
+            $_SESSION['swal_title'] = 'Lỗi!';
+            $_SESSION['swal_message'] = 'Lỗi gửi mail';
+            header("Location: " . $_SERVER['HTTP_REFERER']);
+            exit();
         }
     } else {
-        echo "<script>alert('Email không tồn tại!'); history.back();</script>";
+        $_SESSION['swal_type'] = 'error';
+        $_SESSION['swal_title'] = 'Lỗi!';
+        $_SESSION['swal_message'] = 'Email không tồn tại!';
+        header("Location: " . $_SERVER['HTTP_REFERER']);
+        exit();
     }
 }
 
@@ -68,13 +76,25 @@ if (isset($_POST['verify'])) {
 
         if ($now <= $expiry) {
             $userModel->updatePassword($email, $new_pass);
-            echo "<script>alert('Đổi mật khẩu thành công!'); window.location='../View/form.php';</script>";
+            $_SESSION['swal_type'] = 'success';
+            $_SESSION['swal_title'] = 'Thành công!';
+            $_SESSION['swal_message'] = 'Đổi mật khẩu thành công!';
+            $_SESSION['swal_redirect'] = '../View/form.php';
+            header("Location: ../View/form.php");
             exit();
         } else {
-            echo "<script>alert('Mã OTP này đã hết hạn!'); history.back();</script>";
+            $_SESSION['swal_type'] = 'error';
+            $_SESSION['swal_title'] = 'Lỗi!';
+            $_SESSION['swal_message'] = 'Mã OTP này đã hết hạn!';
+            header("Location: " . $_SERVER['HTTP_REFERER']);
+            exit();
         }
     } else {
-        echo "<script>alert('Mã OTP không chính xác!'); history.back();</script>";
+        $_SESSION['swal_type'] = 'error';
+        $_SESSION['swal_title'] = 'Lỗi!';
+        $_SESSION['swal_message'] = 'Mã OTP không chính xác!';
+        header("Location: " . $_SERVER['HTTP_REFERER']);
+        exit();
     }
 }
 ?>

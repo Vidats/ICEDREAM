@@ -37,4 +37,35 @@ include 'header.php';
     </div>
 </div>
 
+<!-- AI Recommendation Section -->
+<?php if (!empty($recommendations)): ?>
+<div class="container py-5">
+    <h3 class="fw-bold mb-4 text-center">Có thể bạn sẽ thích</h3>
+    <div class="row row-cols-1 row-cols-md-4 g-4">
+        <?php foreach ($recommendations as $item): ?>
+        <div class="col">
+            <div class="card h-100 shadow-sm border-0">
+                <a href="chitietsp.php?id=<?= $item['id'] ?>">
+                    <img src="../image/<?= $item['image'] ?>" class="card-img-top" alt="<?= htmlspecialchars($item['name']) ?>" style="height: 250px; object-fit: contain; background-color: #f8f9fa;">
+                </a>
+                <div class="card-body text-center">
+                    <h6 class="card-title fw-bold">
+                        <a href="chitietsp.php?id=<?= $item['id'] ?>" class="text-decoration-none text-dark">
+                            <?= htmlspecialchars($item['name']) ?>
+                        </a>
+                    </h6>
+                    <p class="card-text text-danger fw-bold"><?= number_format($item['price']) ?>đ</p>
+                </div>
+                <div class="card-footer bg-white border-0 text-center pb-3">
+                    <a href="chitietsp.php?id=<?= $item['id'] ?>" class="btn btn-outline-primary btn-sm rounded-pill px-3">
+                        Xem chi tiết
+                    </a>
+                </div>
+            </div>
+        </div>
+        <?php endforeach; ?>
+    </div>
+</div>
+<?php endif; ?>
+
 <?php include 'footer.php'; ?>

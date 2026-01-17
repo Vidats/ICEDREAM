@@ -4,41 +4,40 @@ include 'header.php';
 // GỌI CONTROLLER để xử lý dữ liệu trước khi hiển thị
 require_once '../Controller/sanpham.php'; 
 ?>
+<link rel="stylesheet" href="../Content/sanpham.css">
 
 <div class="container py-5">
-    <div class="text-center mb-5">
-        <h2 class="section-title d-inline-block">Menu Kem Icedream</h2>
-        <p class="mt-3">Vị ngon – tan chảy mọi trái tim 💞</p>
-    </div>
+  <div class="text-center mb-5">
+    <h2 class="section-title d-inline-block pastel-text">Menu Kem Icedream</h2>
+    <p class="mt-3 sub-title">Vị ngon – tan chảy mọi trái tim 💞</p>
+</div>
 
     <div class="category-menu mb-5">
-        <div class="d-flex flex-wrap justify-content-center gap-3">
-            <a href="sanpham.php" class="cat-item <?= $cat == '' ? 'active' : '' ?>">
-                <i class="fas fa-border-all"></i> <span>TẤT CẢ</span>
-            </a>
-            <a href="sanpham.php?cat=Kem ốc quế" class="cat-item <?= $cat == 'Kem ốc quế' ? 'active' : '' ?>">
-                <i class="fas fa-ice-cream"></i> <span>KEM ỐC QUẾ</span>
-            </a>
-            <a href="sanpham.php?cat=kemtuoi" class="cat-item <?= $cat == 'kemtuoi' ? 'active' : '' ?>">
-                <i class="fas fa-glass-whiskey"></i> <span>KEM TƯƠI</span>
-            </a>
-            <a href="sanpham.php?cat=cafe" class="cat-item <?= $cat == 'cafe' ? 'active' : '' ?>">
-                <i class="fas fa-coffee"></i> <span>KEM QUE</span>
-            </a>
-        </div>
+    <div class="d-flex flex-wrap justify-content-center gap-3">
+        <a href="sanpham.php" class="cat-item <?= $category_id == 0 ? 'active' : '' ?>">
+            <i class="fas fa-store"></i> <span>TẤT CẢ</span>
+        </a>
+        <?php if ($categories): ?>
+            <?php while($row = $categories->fetch_assoc()): ?>
+                <a href="sanpham.php?cat_id=<?= $row['id'] ?>" class="cat-item <?= $category_id == $row['id'] ? 'active' : '' ?>">
+                    <i class="fas fa-ice-cream"></i> <span><?= htmlspecialchars(strtoupper($row['name'])) ?></span>
+                </a>
+            <?php endwhile; ?>
+        <?php endif; ?>
     </div>
+</div>
 
     <div class="row mb-4">
         <div class="col-12 d-flex justify-content-center">
             <form class="d-flex w-100 w-md-50" method="GET" action="sanpham.php">
-                <input type="hidden" name="cat" value="<?= htmlspecialchars($cat) ?>">
-                <input type="search" name="q" class="form-control me-2" placeholder="Tìm sản phẩm theo tên..." value="<?= isset($q) ? htmlspecialchars($q) : '' ?>">
+                <input type="hidden" name="cat_id" value="<?= htmlspecialchars($category_id) ?>">
+                <input type="search" id="search-input" name="q" class="form-control me-2" placeholder="Tìm sản phẩm theo tên..." value="<?= isset($q) ? htmlspecialchars($q) : '' ?>">
                 <button class="btn btn-outline-primary" type="submit">Tìm</button>
             </form>
         </div>
     </div>
 
-    <div class="row g-4"> 
+    <div class="row g-4" id="product-list"> 
         <?php
         if ($result && $result->num_rows > 0) {
             while ($row = $result->fetch_assoc()) {
@@ -57,7 +56,19 @@ require_once '../Controller/sanpham.php';
                                 </a>
                             </h5>
                             <p class="card-text price-tag"><?= number_format($row['price'], 0, ',', '.') ?>đ</p>
-                            <a href="chitietsp.php?id=<?= $row['id'] ?>" class="btn btn-primary mt-auto">Xem chi tiết</a>
+                            
+                            <div class="d-flex justify-content-center gap-2 mt-auto">
+                                <a href="chitietsp.php?id=<?= $row['id'] ?>" class="btn btn-primary btn-sm rounded-pill px-3">
+                                    Xem chi tiết
+                                </a>
+                                <form method="POST" action="../Controller/giohang.php">
+                                    <input type="hidden" name="id" value="<?= $row['id'] ?>">
+                                    <input type="hidden" name="quantity" value="1">
+                                    <button type="submit" name="add_to_cart" class="btn btn-outline-danger btn-sm rounded-circle" title="Thêm vào giỏ">
+                                        <i class="fas fa-cart-plus"></i>
+                                    </button>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -69,5 +80,29 @@ require_once '../Controller/sanpham.php';
         ?>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('search-input');
+    const productList = document.getElementById('product-list');
+    let timeout = null;
+
+    searchInput.addEventListener('input', function() {
+        clearTimeout(timeout);
+        const query = this.value;
+        const urlParams = new URLSearchParams(window.location.search);
+        const cat_id = urlParams.get('cat_id') || '0';
+
+        timeout = setTimeout(() => {
+            fetch(`../Controller/live_search.php?q=${encodeURIComponent(query)}&cat_id=${encodeURIComponent(cat_id)}`)
+                .then(response => response.text())
+                .then(html => {
+                    productList.innerHTML = html;
+                })
+                .catch(error => console.error('Error:', error));
+        }, 300); // Debounce for 300ms
+    });
+});
+</script>
 
 <?php include 'footer.php'; ?>

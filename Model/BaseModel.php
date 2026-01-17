@@ -20,6 +20,32 @@ abstract class BaseModel {
         return mysqli_real_escape_string($this->conn, $value);
     }
 
+    // Hàm thực thi Prepared Statement chung
+    protected function queryPrepared($sql, $params = [], $types = "") {
+        $stmt = $this->conn->prepare($sql);
+        if (!$stmt) {
+            die("Lỗi Prepare Statement: " . $this->conn->error);
+        }
+
+        if (!empty($params)) {
+            if (empty($types)) {
+                $types = str_repeat("s", count($params)); // Mặc định là string nếu không chỉ định
+            }
+            $stmt->bind_param($types, ...$params);
+        }
+
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        // Nếu là câu lệnh SELECT
+        if ($result) {
+            return $result;
+        }
+        
+        // Nếu là INSERT/UPDATE/DELETE
+        return $stmt;
+    }
+
     // Lấy tất cả dữ liệu (Hàm chung dùng cho mọi bảng)
     public function getAll() {
         $table = $this->getTableName();
@@ -28,12 +54,11 @@ abstract class BaseModel {
         return $result->fetch_all(MYSQLI_ASSOC);
     }
 
-    // Tìm theo ID (Hàm chung)
+    // Tìm theo ID (Hàm chung) - Đã nâng cấp Prepared Statement
     public function findById($id) {
         $table = $this->getTableName();
-        $id = intval($id);
-        $sql = "SELECT * FROM $table WHERE id = $id";
-        $result = $this->conn->query($sql);
+        $sql = "SELECT * FROM $table WHERE id = ?";
+        $result = $this->queryPrepared($sql, [$id], "i");
         return $result->fetch_assoc();
     }
 

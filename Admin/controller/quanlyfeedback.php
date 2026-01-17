@@ -7,9 +7,17 @@ $feedbackModel = new FeedbackModel($conn);
 if (isset($_GET['action']) && $_GET['action'] == 'delete' && isset($_GET['id'])) {
     $id = $_GET['id'];
     if ($feedbackModel->deleteFeedback($id)) {
-        echo "<script>alert('Xóa đánh giá thành công!'); window.location='quanlyfeedback.php';</script>";
+        $_SESSION['swal_type'] = 'success';
+        $_SESSION['swal_title'] = 'Thành công!';
+        $_SESSION['swal_message'] = 'Xóa đánh giá thành công!';
+        header("Location: quanlyfeedback.php");
+        exit();
     } else {
-        echo "<script>alert('Lỗi khi xóa!'); window.location='quanlyfeedback.php';</script>";
+        $_SESSION['swal_type'] = 'error';
+        $_SESSION['swal_title'] = 'Lỗi!';
+        $_SESSION['swal_message'] = 'Lỗi khi xóa!';
+        header("Location: quanlyfeedback.php");
+        exit();
     }
 }
 

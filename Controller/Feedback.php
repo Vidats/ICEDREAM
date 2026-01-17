@@ -17,12 +17,27 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $feedbackModel = new FeedbackModel($conn);
 
     if ($feedbackModel->hasFeedback($order_id)) {
-        echo "<script>alert('Bạn đã đánh giá đơn hàng này rồi!'); window.location='../View/my_order.php';</script>";
+        $_SESSION['swal_type'] = 'warning';
+        $_SESSION['swal_title'] = 'Thông báo';
+        $_SESSION['swal_message'] = 'Bạn đã đánh giá đơn hàng này rồi!';
+        $_SESSION['swal_redirect'] = '../View/my_order.php';
+        header("Location: ../View/my_order.php");
+        exit();
     } else {
         if ($feedbackModel->addFeedback($user_id, $order_id, $rating, $comment)) {
-            echo "<script>alert('Cảm ơn bạn đã đánh giá!'); window.location='../View/my_order.php';</script>";
+            $_SESSION['swal_type'] = 'success';
+            $_SESSION['swal_title'] = 'Thành công!';
+            $_SESSION['swal_message'] = 'Cảm ơn bạn đã đánh giá!';
+            $_SESSION['swal_redirect'] = '../View/my_order.php';
+            header("Location: ../View/my_order.php");
+            exit();
         } else {
-            echo "<script>alert('Có lỗi xảy ra, vui lòng thử lại.'); window.location='../View/my_order.php';</script>";
+            $_SESSION['swal_type'] = 'error';
+            $_SESSION['swal_title'] = 'Lỗi!';
+            $_SESSION['swal_message'] = 'Có lỗi xảy ra, vui lòng thử lại.';
+            $_SESSION['swal_redirect'] = '../View/my_order.php';
+            header("Location: ../View/my_order.php");
+            exit();
         }
     }
 } else {

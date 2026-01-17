@@ -1,29 +1,24 @@
-
 <?php
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+// Define absolute base URL for admin area
+if (!defined('ADMIN_URL')) {
+    // This assumes the project is directly in htdocs/doanphp/
+    $baseURL = '/doanphp/';
+    define('ADMIN_URL', $baseURL . 'Admin/');
+    define('BASE_URL', $baseURL);
+}
+
 // Check login
 if (!isset($_SESSION['role']) || $_SESSION['role'] != 1) {
-    // Determine path to login form relative to current file
-    // Assuming structure: Admin/View/layouts/header.php included by Admin/View/file.php or Admin/index.php
-    $loginPath = '../../View/form.php'; 
-    if(basename(getcwd()) == 'Admin') {
-        $loginPath = '../View/form.php';
-    }
-    header("Location: $loginPath?tab=login&status=error&message=Vui lòng đăng nhập quyền Admin!");
+    header("Location: " . BASE_URL . "View/form.php?tab=login&status=error&message=Vui lòng đăng nhập quyền Admin!");
     exit();
 }
 
 // Determine current page for active menu
 $currentPage = basename($_SERVER['PHP_SELF']);
-
-// Determine base path for links
-$baseAdminPath = '../'; // Default if inside Admin/View/
-if(basename(getcwd()) == 'Admin') {
-    $baseAdminPath = './';
-}
 ?>
 <!DOCTYPE html>
 <html lang="vi">
@@ -38,6 +33,7 @@ if(basename(getcwd()) == 'Admin') {
     
     <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
     <style>
         :root {
@@ -219,56 +215,62 @@ if(basename(getcwd()) == 'Admin') {
 
     <!-- Sidebar -->
     <div class="sidebar" id="sidebar">
-        <a href="<?= $baseAdminPath ?>index.php" class="sidebar-brand">
+        <a href="<?= ADMIN_URL ?>index.php" class="sidebar-brand">
             <i class="fas fa-ice-cream"></i>
             <span>IceDream</span>
         </a>
         
         <ul class="sidebar-menu">
             <li class="menu-item">
-                <a href="<?= $baseAdminPath ?>index.php" class="menu-link <?= ($currentPage == 'index.php' || $currentPage == 'dashboard_home.php') ? 'active' : '' ?>">
+                <a href="<?= ADMIN_URL ?>index.php" class="menu-link <?= ($currentPage == 'index.php' || $currentPage == 'dashboard_home.php') ? 'active' : '' ?>">
                     <i class="fas fa-th-large"></i>
                     <span>Tổng Quan</span>
                 </a>
             </li>
             <li class="menu-item">
-                <a href="<?= $baseAdminPath ?>View/quanlysp.php" class="menu-link <?= ($currentPage == 'quanlysp.php') ? 'active' : '' ?>">
+                <a href="<?= ADMIN_URL ?>View/quanlysp.php" class="menu-link <?= ($currentPage == 'quanlysp.php') ? 'active' : '' ?>">
                     <i class="fas fa-box-open"></i>
                     <span>Sản Phẩm</span>
                 </a>
             </li>
             <li class="menu-item">
-                <a href="<?= $baseAdminPath ?>View/quanlydonhang.php" class="menu-link <?= ($currentPage == 'quanlydonhang.php') ? 'active' : '' ?>">
+                <a href="<?= ADMIN_URL ?>View/quanlydanhmuc.php" class="menu-link <?= ($currentPage == 'quanlydanhmuc.php') ? 'active' : '' ?>">
+                    <i class="fas fa-tags"></i>
+                    <span>Danh Mục</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="<?= ADMIN_URL ?>View/quanlydonhang.php" class="menu-link <?= ($currentPage == 'quanlydonhang.php') ? 'active' : '' ?>">
                     <i class="fas fa-shopping-bag"></i>
                     <span>Đơn Hàng</span>
                 </a>
             </li>
             <li class="menu-item">
-                <a href="<?= $baseAdminPath ?>View/quanlyuser.php" class="menu-link <?= ($currentPage == 'quanlyuser.php') ? 'active' : '' ?>">
+                <a href="<?= ADMIN_URL ?>View/quanlyuser.php" class="menu-link <?= ($currentPage == 'quanlyuser.php') ? 'active' : '' ?>">
                     <i class="fas fa-users"></i>
                     <span>Khách Hàng</span>
                 </a>
             </li>
             <li class="menu-item">
-                <a href="<?= $baseAdminPath ?>controller/quanlyfeedback.php" class="menu-link <?= ($currentPage == 'quanlyfeedback.php') ? 'active' : '' ?>">
+                <a href="<?= ADMIN_URL ?>controller/quanlyfeedback.php" class="menu-link <?= ($currentPage == 'quanlyfeedback.php') ? 'active' : '' ?>">
                     <i class="fas fa-comments"></i>
                     <span>Đánh Giá</span>
                 </a>
             </li>
             <li class="menu-item">
-                <a href="<?= $baseAdminPath ?>View/tongdoanhthu.php" class="menu-link <?= ($currentPage == 'tongdoanhthu.php') ? 'active' : '' ?>">
+                <a href="<?= ADMIN_URL ?>View/tongdoanhthu.php" class="menu-link <?= ($currentPage == 'tongdoanhthu.php') ? 'active' : '' ?>">
                     <i class="fas fa-chart-line"></i>
                     <span>Doanh Thu</span>
                 </a>
             </li>
             <li class="menu-item">
-                <a href="<?= $baseAdminPath ?>View/thongke_banchay.php" class="menu-link <?= ($currentPage == 'thongke_banchay.php') ? 'active' : '' ?>">
+                <a href="<?= ADMIN_URL ?>View/thongke_banchay.php" class="menu-link <?= ($currentPage == 'thongke_banchay.php') ? 'active' : '' ?>">
                     <i class="fas fa-chart-pie"></i>
                     <span>SP Bán Chạy</span>
                 </a>
             </li>
             <li class="menu-item mt-3">
-                <a href="<?= $baseAdminPath ?>../View/index.php" class="menu-link text-primary">
+                <a href="<?= BASE_URL ?>View/index.php" class="menu-link text-primary">
                     <i class="fas fa-home"></i>
                     <span>Về Trang Chủ</span>
                 </a>
@@ -283,7 +285,7 @@ if(basename(getcwd()) == 'Admin') {
                 <div style="font-weight: 700; font-size: 0.9rem;"><?= htmlspecialchars($_SESSION['user_name'] ?? 'Admin') ?></div>
                 <div style="font-size: 0.8rem; color: #888;">Quản trị viên</div>
             </div>
-            <a href="<?= $baseAdminPath ?>../Controller/logout.php" title="Đăng xuất" style="color: #ff6b6b;">
+            <a href="<?= BASE_URL ?>Controller/logout.php" title="Đăng xuất" style="color: #ff6b6b;">
                 <i class="fas fa-sign-out-alt"></i>
             </a>
         </div>

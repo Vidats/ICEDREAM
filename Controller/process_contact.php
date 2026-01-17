@@ -59,11 +59,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $mail->send();
         
         // Gửi xong thông báo và quay về trang contact
-        echo "<script>alert('Cảm ơn bạn! Tin nhắn đã được gửi thành công.'); window.location.href='../View/lienhe.php';</script>";
+        $_SESSION['swal_type'] = 'success';
+        $_SESSION['swal_title'] = 'Thành công!';
+        $_SESSION['swal_message'] = 'Cảm ơn bạn! Tin nhắn đã được gửi thành công.';
+        $_SESSION['swal_redirect'] = '../View/lienhe.php';
+        header("Location: ../View/lienhe.php");
         exit();
         
     } catch (Exception $e) {
-        echo "<script>alert('Lỗi gửi mail: {$mail->ErrorInfo}'); history.back();</script>";
+        $_SESSION['swal_type'] = 'error';
+        $_SESSION['swal_title'] = 'Lỗi!';
+        $_SESSION['swal_message'] = "Lỗi gửi mail: {$mail->ErrorInfo}";
+        header("Location: " . $_SERVER['HTTP_REFERER']);
+        exit();
     }
 } else {
     header("Location: ../View/lienhe.php");

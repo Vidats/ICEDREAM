@@ -27,7 +27,7 @@ class AdminOrderModel extends BaseModel {
     }
 
     /**
-     * Thống kê sản phẩm bán chạy (Top 5)
+     * Thống kê sản phẩm bán chạy (Top 10)
      */
     public function getTopSellingProducts() {
         // Chỉ lấy từ đơn hàng không bị hủy
@@ -38,8 +38,34 @@ class AdminOrderModel extends BaseModel {
                 WHERE o.status != 'Đã hủy'
                 GROUP BY od.product_id
                 ORDER BY total_sold DESC
-                LIMIT 5";
+                LIMIT 10";
         
+        $result = $this->conn->query($sql);
+        return $result->fetch_all(MYSQLI_ASSOC);
+    }
+
+    /**
+     * Thống kê doanh thu theo danh mục
+     */
+public function getRevenueByCategory() {
+    // Sửa p.category thành p.category_id (hoặc tên cột đúng trong DB của bạn)
+    $sql = "SELECT p.category_id, SUM(od.quantity * od.price) as revenue
+            FROM order_details od
+            JOIN products p ON od.product_id = p.id
+            JOIN orders o ON od.order_id = o.id
+            WHERE o.status = 'Hoàn thành'
+            GROUP BY p.category_id
+            ORDER BY revenue DESC";
+    $result = $this->conn->query($sql);
+    return $result->fetch_all(MYSQLI_ASSOC);
+}
+    /**
+     * Thống kê trạng thái đơn hàng
+     */
+    public function getOrderStatusStats() {
+        $sql = "SELECT status, COUNT(*) as count 
+                FROM orders 
+                GROUP BY status";
         $result = $this->conn->query($sql);
         return $result->fetch_all(MYSQLI_ASSOC);
     }

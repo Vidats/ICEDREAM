@@ -1,38 +1,33 @@
 <?php
 session_start();
+require_once __DIR__ . '/../Model/UserModel.php';
+require_once __DIR__ . '/../Model/db.php'; 
 
-// Kết nối DB từ thư mục Model
-include '../Model/db.php'; 
+$userModel = new UserModel($conn);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Kiểm tra kết nối DB
-    if (!$conn) {
-        die("Kết nối database thất bại.");
-    }
-
-    // Lấy dữ liệu và dùng mysqli_real_escape_string để bảo mật cơ bản
-    $email = mysqli_real_escape_string($conn, $_POST['email']);
-    $password = mysqli_real_escape_string($conn, $_POST['password']); // LẤY MẬT KHẨU THƯỜNG
-    $full_name = mysqli_real_escape_string($conn, $_POST['full_name']);
+    $email = $_POST['email'];
+    $password = $_POST['password'];
+    $full_name = $_POST['full_name'];
     
-    // 1. Kiểm tra email đã tồn tại chưa
-    $check_email = "SELECT id FROM users WHERE email = '$email'";
-    $result = $conn->query($check_email);
-
-    if ($result->num_rows > 0) {
-        // Nếu trùng email, quay lại trang form/auth
+    // 1. Kiểm tra email đã tồn tại chưa (Dùng Prepared Statement thông qua Model)
+    if ($userModel->checkEmailExists($email)) {
         header("Location: ../View/form.php?tab=register&status=error&message=Email đã tồn tại!");
         exit();
     } else {
+        // 2. Mã hóa mật khẩu
+        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
-        $sql = "INSERT INTO users (full_name, email, password, role) VALUES ('$full_name', '$email', '$password', 0)";
+        // 3. Sử dụng Prepared Statement để Insert
+        $sql = "INSERT INTO users (full_name, email, password, role) VALUES (?, ?, ?, 0)";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("sss", $full_name, $email, $hashed_password);
         
-        if ($conn->query($sql) === TRUE) {
-            // Đăng ký xong, quay lại tab đăng nhập
+        if ($stmt->execute()) {
             header("Location: ../View/form.php?tab=login&status=success&message=Đăng ký thành công!");
             exit();
         } else {
-            header("Location: ../View/form.php?tab=register&status=error&message=Lỗi hệ thống: " . $conn->error);
+            header("Location: ../View/form.php?tab=register&status=error&message=Lỗi hệ thống.");
             exit();
         }
     }

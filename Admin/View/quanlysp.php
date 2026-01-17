@@ -8,6 +8,12 @@ if (isset($_GET['edit_id'])) {
     $res = $conn->query("SELECT * FROM products WHERE id = $edit_id");
     $edit_product = $res->fetch_assoc();
 }
+
+$categories_res = $conn->query("SELECT * FROM categories ORDER BY name ASC");
+$categories = [];
+while ($row = $categories_res->fetch_assoc()) {
+    $categories[] = $row;
+}
 ?>
 
 <div class="page-header">
@@ -40,7 +46,14 @@ if (isset($_GET['edit_id'])) {
 
                 <div class="mb-3">
                     <label class="form-label small fw-bold text-muted">Phân loại</label>
-                    <input type="text" name="category" class="form-control" value="<?= $edit_product ? htmlspecialchars($edit_product['category']) : '' ?>" placeholder="VD: Kem, Sinh tố, Cafe..." required>
+                    <select name="category_id" class="form-control" required>
+                        <option value="">-- Chọn danh mục --</option>
+                        <?php foreach ($categories as $category): ?>
+                            <option value="<?= $category['id'] ?>" <?= ($edit_product && $edit_product['category_id'] == $category['id']) ? 'selected' : '' ?>>
+                                <?= htmlspecialchars($category['name']) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
                 </div>
 
                 <div class="mb-3">
@@ -57,7 +70,7 @@ if (isset($_GET['edit_id'])) {
                     <label class="form-label small fw-bold text-muted">Hình ảnh</label>
                     <?php if ($edit_product): ?>
                         <div class="mb-2">
-                            <img src="../image/<?= $edit_product['image'] ?>" width="100%" class="rounded border p-1" style="max-height: 150px; object-fit: cover;">
+                            <img src="../../image/<?= $edit_product['image'] ?>" width="100%" class="rounded border p-1" style="max-height: 150px; object-fit: cover;">
                         </div>
                     <?php endif; ?>
                     <input type="file" name="image" class="form-control" <?= $edit_product ? '' : 'required' ?>>
@@ -91,14 +104,14 @@ if (isset($_GET['edit_id'])) {
                     </thead>
                     <tbody>
                         <?php
-                        $result = $conn->query("SELECT * FROM products ORDER BY id DESC");
+                        $result = $conn->query("SELECT p.*, c.name as category_name FROM products p LEFT JOIN categories c ON p.category_id = c.id ORDER BY p.id DESC");
                         if ($result->num_rows > 0):
                         while($row = $result->fetch_assoc()):
                         ?>
                         <tr>
                             <td class="ps-4">
                                 <div class="d-flex align-items-center gap-3">
-                                    <img src="../image/<?= $row['image'] ?>" class="rounded" width="50" height="50" style="object-fit: cover;">
+                                    <img src="../../image/<?= $row['image'] ?>" class="rounded" width="50" height="50" style="object-fit: cover;">
                                     <div>
                                         <div class="fw-bold"><?= htmlspecialchars($row['name']) ?></div>
                                         <small class="text-muted">#<?= $row['id'] ?></small>
@@ -106,7 +119,7 @@ if (isset($_GET['edit_id'])) {
                                 </div>
                             </td>
                             <td class="fw-bold text-primary"><?= number_format($row['price']) ?>đ</td>
-                            <td><span class="badge bg-info text-dark bg-opacity-10 border border-info px-3 py-2 rounded-pill"><?= ucfirst($row['category']) ?></span></td>
+                            <td><span class="badge bg-info text-dark bg-opacity-10 border border-info px-3 py-2 rounded-pill"><?= htmlspecialchars($row['category_name'] ?? 'Chưa phân loại') ?></span></td>
                             <td>
                                 <span class="fw-bold"><?= intval($row['quantity']) ?></span>
                             </td>
