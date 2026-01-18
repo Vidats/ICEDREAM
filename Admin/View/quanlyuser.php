@@ -31,7 +31,7 @@ require_once __DIR__ . '/../../Model/db.php';
             </thead>
             <tbody>
                 <?php
-                $result = $conn->query("SELECT * FROM users ORDER BY id DESC");
+                $result = $conn->query("SELECT * FROM users WHERE deleted_at IS NULL ORDER BY id DESC");
                 if($result->num_rows > 0):
                 while($row = $result->fetch_assoc()):
                 ?>

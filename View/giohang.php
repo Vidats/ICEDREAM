@@ -5,20 +5,29 @@ include 'header.php';
 $cart_items = getCartData();
 $giohangModel = new GiohangModel($GLOBALS['conn']);
 
-// Tính toán giá trị
 $total_price = $giohangModel->getTotalPrice($cart_items);
 $discount_amount = 0;
 $final_price = $total_price;
+$applied_coupon = null; // Coupon được áp dụng (có thể là thủ công)
+$suggested_auto_coupon = null; // Coupon tự động tìm thấy để gợi ý
 
-// Check coupon trong session
+// 1. Kiểm tra xem có coupon nào đang được áp dụng thủ công trong session không
 if (isset($_SESSION['coupon'])) {
-    $discount_percent = $_SESSION['coupon']['percent'];
+    $applied_coupon = $_SESSION['coupon'];
+} 
+
+// 2. Nếu CHƯA có coupon nào được áp dụng thủ công VÀ giỏ hàng có hàng, tìm coupon tự động để gợi ý
+if (!$applied_coupon && $total_price > 0) {
+    $couponModel = new CouponModel($GLOBALS['conn']);
+    $suggested_auto_coupon = $couponModel->getAutoApplicableCoupon($total_price);
+}
+
+// 3. Tính toán giảm giá nếu có coupon được áp dụng (thủ công)
+if ($applied_coupon) {
+    $discount_percent = $applied_coupon['percent'];
     $discount_amount = $total_price * ($discount_percent / 100);
     $final_price = $total_price - $discount_amount;
 }
-
-// Lấy danh sách mã giảm giá phù hợp để gợi ý
-$suggested_coupons = getSuggestedCoupons($total_price);
 ?>
 
 <div class="container py-5">
@@ -94,6 +103,13 @@ $suggested_coupons = getSuggestedCoupons($total_price);
                                 <?php endif; ?>
                             </div>
                         </form>
+
+                        <?php if (!$applied_coupon && $suggested_auto_coupon): ?>
+                            <div class="alert alert-info small py-2 mt-2">
+                                Gợi ý mã giảm giá: Đơn hàng đủ điều kiện nhận mã <b class="text-primary"><?= htmlspecialchars($suggested_auto_coupon['code']) ?></b> (giảm <?= htmlspecialchars($suggested_auto_coupon['discount_percent']) ?>% cho đơn từ <?= number_format($suggested_auto_coupon['min_order_value'], 0, ',', '.') ?>đ).
+                                Bạn có thể nhập mã này vào ô trên để áp dụng.
+                            </div>
+                        <?php endif; ?>
 
                         <hr>
 

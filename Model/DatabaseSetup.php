@@ -47,6 +47,22 @@ class DatabaseSetup {
         }
     }
 
+    public function addDeletedAtToUsersTable() {
+        // Kiểm tra xem cột đã tồn tại chưa
+        $result = $this->conn->query("SHOW COLUMNS FROM `users` LIKE 'deleted_at'");
+        if ($result->num_rows > 0) {
+            return "Column 'deleted_at' already exists in 'users' table.";
+        }
+
+        // Thêm cột nếu chưa tồn tại
+        $sql = "ALTER TABLE `users` ADD `deleted_at` TIMESTAMP NULL DEFAULT NULL";
+        if ($this->conn->query($sql) === TRUE) {
+            return "Column 'deleted_at' added to 'users' table successfully.";
+        } else {
+            return "Error adding column: " . $this->conn->error;
+        }
+    }
+
     // Logic từ list_tables.php
     public function getAllTables() {
         $tables = [];

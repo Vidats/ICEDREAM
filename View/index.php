@@ -25,9 +25,7 @@ $feedbacks = array_slice($feedbacks, 0, 4); // Lấy 4 đánh giá mới nhất
         <h1 class="display-3">Hương Vị Mùa Hè</h1>
         <p class="fs-4">Khám phá bộ sưu tập kem tươi mát lạnh, giải nhiệt ngày hè.</p>
         <a href="sanpham.php" class="btn btn-hero ">Xem Sản Phẩm</a><br>
-        <button id="openQuizBtn" class="btn text-white shadow-sm" style="background-color: #ff85a2; border-radius: 25px; padding: 10px 25px;">
-    Chơi Game Nhận Voucher 🎁
-        </button>
+ 
         
     </div>
 </div>

@@ -33,7 +33,8 @@ if ($action == 'delete' && isset($_GET['id'])) {
         exit();
     }
     
-    $conn->query("DELETE FROM users WHERE id = $id");
-    header("Location: ../View/quanlyuser.php?message=Đã xóa người dùng");
+    // Cập nhật deleted_at để thực hiện xóa mềm
+    $conn->query("UPDATE users SET deleted_at = NOW() WHERE id = $id");
+    header("Location: ../View/quanlyuser.php?message=Đã xóa người dùng thành công");
     exit();
 }

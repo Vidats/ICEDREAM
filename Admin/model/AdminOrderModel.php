@@ -47,16 +47,26 @@ class AdminOrderModel extends BaseModel {
     /**
      * Thống kê doanh thu theo danh mục
      */
+/**
+ * Thống kê doanh thu theo danh mục
+ */
 public function getRevenueByCategory() {
-    // Sửa p.category thành p.category_id (hoặc tên cột đúng trong DB của bạn)
-    $sql = "SELECT p.category_id, SUM(od.quantity * od.price) as revenue
+    // Đã đổi JOIN danhmuc thành JOIN categories để khớp với DB của bạn
+    $sql = "SELECT c.name as category_name, SUM(od.quantity * od.price) as revenue
             FROM order_details od
             JOIN products p ON od.product_id = p.id
+            JOIN categories c ON p.category_id = c.id
             JOIN orders o ON od.order_id = o.id
             WHERE o.status = 'Hoàn thành'
-            GROUP BY p.category_id
+            GROUP BY c.name
             ORDER BY revenue DESC";
+            
     $result = $this->conn->query($sql);
+    
+    if (!$result) {
+        die("Lỗi truy vấn: " . $this->conn->error);
+    }
+    
     return $result->fetch_all(MYSQLI_ASSOC);
 }
     /**
@@ -87,6 +97,45 @@ public function getRevenueByCategory() {
                 FROM order_details od
                 JOIN products p ON od.product_id = p.id
                 WHERE od.order_id = $order_id";
+        $result = $this->conn->query($sql);
+        return $result->fetch_all(MYSQLI_ASSOC);
+    }
+
+    /**
+     * Thống kê top 5 khách hàng chi tiêu nhiều nhất
+     */
+    /**
+ * Thống kê top 5 khách hàng chi tiêu nhiều nhất
+ */
+public function getTopCustomers() {
+    // Sửa u.fullname thành u.full_name
+    $sql = "SELECT u.full_name, SUM(o.total_price) as total_spent
+            FROM orders o
+            JOIN users u ON o.user_id = u.id
+            WHERE o.status = 'Hoàn thành'
+            GROUP BY o.user_id, u.full_name
+            ORDER BY total_spent DESC
+            LIMIT 5";
+            
+    $result = $this->conn->query($sql);
+    
+    if (!$result) {
+        die("Lỗi truy vấn: " . $this->conn->error);
+    }
+    
+    return $result->fetch_all(MYSQLI_ASSOC);
+}
+
+    /**
+     * Thống kê tăng trưởng người dùng trong 12 tháng
+     */
+    public function getUserGrowth() {
+        $sql = "SELECT DATE_FORMAT(created_at, '%m-%Y') as registration_month, COUNT(id) as new_user_count
+                FROM users
+                WHERE role != 1
+                GROUP BY registration_month
+                ORDER BY created_at ASC
+                LIMIT 12";
         $result = $this->conn->query($sql);
         return $result->fetch_all(MYSQLI_ASSOC);
     }

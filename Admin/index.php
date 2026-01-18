@@ -62,13 +62,33 @@ $catStats = $adminOrderModel->getRevenueByCategory();
 $catLabels = [];
 $catData = [];
 foreach ($catStats as $stat) {
-    $catLabels[] = $stat['category_id'];
+    $catLabels[] = $stat['category_name'];
     $catData[] = $stat['revenue'];
 }
 
 // Fetch Feedback Stats (Giữ nguyên)
 $feedbackModel = new FeedbackModel($conn);
 $ratingStats = $feedbackModel->getRatingStatistics();
+
+// --- 6. Bar Chart: Top 5 Khách hàng thân thiết ---
+$topCustomers = $adminOrderModel->getTopCustomers();
+$customerLabels = [];
+$customerData = [];
+
+foreach ($topCustomers as $customer) {
+    // Sửa 'fullname' thành 'full_name' cho khớp với SQL
+    $customerLabels[] = $customer['full_name']; 
+    $customerData[] = (float)$customer['total_spent'];
+}
+
+// --- 7. Line Chart: Tăng trưởng người dùng ---
+$userGrowth = $adminOrderModel->getUserGrowth();
+$userGrowthLabels = [];
+$userGrowthData = [];
+foreach ($userGrowth as $growth) {
+    $userGrowthLabels[] = $growth['registration_month'];
+    $userGrowthData[] = (int)$growth['new_user_count'];
+}
 ?>
 
 <div class="page-header">
@@ -77,9 +97,9 @@ $ratingStats = $feedbackModel->getRatingStatistics();
 </div>
 
 <!-- Quick Stats Cards -->
-<div class="row g-4 mb-5">
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-5 g-4 mb-5">
     <!-- Card 1 -->
-    <div class="col-md-3">
+    <div class="col">
         <div class="card p-4 h-100 border-0 shadow-sm" style="background: linear-gradient(135deg, #ff85a2 0%, #ffb7b2 100%); color: white;">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <div style="font-size: 3rem; opacity: 0.8;"><i class="fas fa-shopping-cart"></i></div>
@@ -93,7 +113,7 @@ $ratingStats = $feedbackModel->getRatingStatistics();
     </div>
 
     <!-- Card 2 -->
-    <div class="col-md-3">
+    <div class="col">
         <div class="card p-4 h-100 border-0 shadow-sm" style="background: linear-gradient(135deg, #a2d2ff 0%, #bde0fe 100%); color: white;">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <div style="font-size: 3rem; opacity: 0.8;"><i class="fas fa-box-open"></i></div>
@@ -107,7 +127,7 @@ $ratingStats = $feedbackModel->getRatingStatistics();
     </div>
 
     <!-- Card 3 -->
-    <div class="col-md-3">
+    <div class="col">
         <div class="card p-4 h-100 border-0 shadow-sm" style="background: linear-gradient(135deg, #ffc8dd 0%, #ffafcc 100%); color: white;">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <div style="font-size: 3rem; opacity: 0.8;"><i class="fas fa-users"></i></div>
@@ -121,7 +141,7 @@ $ratingStats = $feedbackModel->getRatingStatistics();
     </div>
 
     <!-- Card 4 -->
-    <div class="col-md-3">
+    <div class="col">
         <div class="card p-4 h-100 border-0 shadow-sm" style="background: linear-gradient(135deg, #cdb4db 0%, #bde0fe 100%); color: white;">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <div style="font-size: 3rem; opacity: 0.8;"><i class="fas fa-dollar-sign"></i></div>
@@ -131,6 +151,20 @@ $ratingStats = $feedbackModel->getRatingStatistics();
                 </div>
             </div>
             <h2 class="mb-0 fw-bold"><?= number_format($revenue) ?>đ</h2>
+        </div>
+    </div>
+
+    <!-- Card 5 - Rating -->
+    <div class="col">
+        <div class="card p-4 h-100 border-0 shadow-sm" style="background: linear-gradient(135deg, #f1c40f 0%, #f39c12 100%); color: white;">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div style="font-size: 3rem; opacity: 0.8;"><i class="fas fa-star"></i></div>
+                <div class="text-end">
+                    <h5 class="mb-0">Đánh Giá</h5>
+                    <small>Trung bình</small>
+                </div>
+            </div>
+            <h2 class="mb-0 fw-bold"><?= $ratingStats['average'] ?> / 5</h2>
         </div>
     </div>
 </div>
@@ -169,29 +203,18 @@ $ratingStats = $feedbackModel->getRatingStatistics();
     </div>
 </div>
 
-<!-- Row 3: Rating Stats -->
+<!-- Row 4: Top Customers & User Growth -->
 <div class="row mb-5">
-    <div class="col-md-4">
+    <div class="col-md-6">
         <div class="card p-4 h-100 border-0 shadow-sm">
-            <h5 class="card-title mb-4 fw-bold">Tổng Quan Đánh Giá</h5>
-            <div class="text-center py-3">
-                <h1 class="display-1 fw-bold text-warning"><?= $ratingStats['average'] ?></h1>
-                <div class="mb-2 text-warning fs-4">
-                    <?php 
-                    $stars = round($ratingStats['average']);
-                    for($i=1; $i<=5; $i++) {
-                        echo $i <= $stars ? '<i class="fas fa-star"></i>' : '<i class="far fa-star"></i>';
-                    }
-                    ?>
-                </div>
-                <p class="text-muted">Dựa trên <?= $ratingStats['total'] ?> lượt đánh giá</p>
-            </div>
+            <h5 class="card-title mb-4 fw-bold">Top 5 Khách Hàng Thân Thiết</h5>
+            <canvas id="topCustomersChart" style="max-height: 350px;"></canvas>
         </div>
     </div>
-    <div class="col-md-8">
+    <div class="col-md-6">
         <div class="card p-4 h-100 border-0 shadow-sm">
-            <h5 class="card-title mb-4 fw-bold">Phân Bố Sao</h5>
-            <canvas id="ratingChart" style="max-height: 250px;"></canvas>
+            <h5 class="card-title mb-4 fw-bold">Tăng Trưởng Người Dùng (12 Tháng)</h5>
+            <canvas id="userGrowthChart" style="max-height: 350px;"></canvas>
         </div>
     </div>
 </div>
@@ -325,30 +348,57 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
-    // --- 5. Rating Chart (Bar - Existing) ---
-    const ctxRating = document.getElementById('ratingChart').getContext('2d');
-    new Chart(ctxRating, {
+    // --- 6. Top Customers Chart (Bar) ---
+    const ctxCustomers = document.getElementById('topCustomersChart').getContext('2d');
+    new Chart(ctxCustomers, {
         type: 'bar',
         data: {
-            labels: ['1 Sao', '2 Sao', '3 Sao', '4 Sao', '5 Sao'],
+            labels: <?= json_encode($customerLabels) ?>,
             datasets: [{
-                label: 'Số lượng đánh giá',
-                data: [
-                    <?= $ratingStats['stars'][1] ?>, 
-                    <?= $ratingStats['stars'][2] ?>, 
-                    <?= $ratingStats['stars'][3] ?>, 
-                    <?= $ratingStats['stars'][4] ?>, 
-                    <?= $ratingStats['stars'][5] ?>
-                ],
-                backgroundColor: [
-                    '#ff6b6b',
-                    '#ffa502',
-                    '#f1c40f',
-                    '#7bed9f',
-                    '#2ed573'
-                ],
-                borderWidth: 1,
+                label: 'Tổng chi tiêu (VNĐ)',
+                data: <?= json_encode($customerData) ?>,
+                backgroundColor: '#28a745', // Green
                 borderRadius: 5
+            }]
+        },
+        options: {
+            indexAxis: 'y', // Horizontal bar chart
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) { return value.toLocaleString('vi-VN') + ' đ'; }
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(context.parsed.x);
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // --- 7. User Growth Chart (Line) ---
+    const ctxUserGrowth = document.getElementById('userGrowthChart').getContext('2d');
+    new Chart(ctxUserGrowth, {
+        type: 'line',
+        data: {
+            labels: <?= json_encode($userGrowthLabels) ?>,
+            datasets: [{
+                label: 'Số người dùng mới',
+                data: <?= json_encode($userGrowthData) ?>,
+                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                borderColor: 'rgba(255, 99, 132, 1)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.4
             }]
         },
         options: {
@@ -361,7 +411,18 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
             },
             plugins: {
-                legend: { display: false }
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) { label += ': '; }
+                            if (context.parsed.y !== null) {
+                                label += context.parsed.y.toLocaleString('vi-VN');
+                            }
+                            return label;
+                        }
+                    }
+                }
             }
         }
     });
