@@ -9,7 +9,7 @@ $giohangModel = new GiohangModel($conn);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_to_cart'])) {
     if (!isset($_SESSION['user_id'])) {
-        header('Location: form.php?tab=login&status=error&message=Vui lòng đăng nhập!');
+        header('Location: auth.php?tab=login&status=error&message=Vui lòng đăng nhập!');
         exit();
     }
 

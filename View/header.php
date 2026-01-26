@@ -70,7 +70,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                         </a>
                     </div>
                 <?php else: ?>
-                    <a href="form.php" class="icon-link" title="Đăng nhập"><i class="fas fa-user"></i></a>
+                    <a href="auth.php" class="icon-link" title="Đăng nhập"><i class="fas fa-user"></i></a>
                 <?php endif; ?>
             </div>
         </div>

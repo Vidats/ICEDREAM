@@ -11,14 +11,15 @@ class OrderModel extends BaseModel {
     /**
      * Lưu đơn hàng mới
      */
-    public function createOrder($user_id, $full_name, $email, $address, $total_price) {
+    public function createOrder($user_id, $full_name, $email, $address, $total_price, $status = 'Đang xử lý') {
         $full_name = $this->escape($full_name);
         $email = $this->escape($email);
         $address = $this->escape($address);
         $user_id = intval($user_id);
+        $status = $this->escape($status);
         
         $sql = "INSERT INTO orders (user_id, full_name, email, address, total_price, status, created_at) 
-                VALUES ('$user_id', '$full_name', '$email', '$address', '$total_price', 'Đang xử lý', NOW())";
+                VALUES ('$user_id', '$full_name', '$email', '$address', '$total_price', '$status', NOW())";
         
         if ($this->conn->query($sql)) {
             return $this->conn->insert_id;

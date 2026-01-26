@@ -11,7 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // --- Xử lý thêm vào giỏ hàng từ trang danh sách (sanpham.php) ---
     if (isset($_POST['add_to_cart'])) {
         if (!isset($_SESSION['user_id'])) {
-            header('Location: ../View/form.php?tab=login&status=error&message=Vui lòng đăng nhập!');
+            header('Location: ../View/auth.php?tab=login&status=error&message=Vui lòng đăng nhập!');
             exit();
         }
 

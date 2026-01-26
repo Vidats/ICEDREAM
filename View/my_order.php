@@ -8,7 +8,7 @@ require_once '../Model/order.php';
 require_once '../Model/FeedbackModel.php';
 
 if (!isset($_SESSION['user_id'])) {
-    header("Location: form.php?tab=login");
+    header("Location: auth.php?tab=login");
     exit();
 }
 

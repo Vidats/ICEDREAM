@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Sau này bạn nên chạy script hash lại toàn bộ DB.
             
             if (isset($user['status']) && $user['status'] == 0) {
-                header("Location: ../View/form.php?tab=login&status=error&message=Tài khoản đã bị khóa!");
+                header("Location: ../View/auth.php?tab=login&status=error&message=Tài khoản đã bị khóa!");
                 exit();
             }
 
@@ -44,11 +44,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             exit();
         } else {
-            header("Location: ../View/form.php?tab=login&status=error&message=Mật khẩu không chính xác!");
+            header("Location: ../View/auth.php?tab=login&status=error&message=Mật khẩu không chính xác!");
             exit();
         }
     } else {
-        header("Location: ../View/form.php?tab=login&status=error&message=Email không tồn tại!");
+        header("Location: ../View/auth.php?tab=login&status=error&message=Email không tồn tại!");
         exit();
     }
 }

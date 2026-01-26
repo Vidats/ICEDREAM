@@ -13,7 +13,7 @@ if (!defined('ADMIN_URL')) {
 
 // Check login
 if (!isset($_SESSION['role']) || $_SESSION['role'] != 1) {
-    header("Location: " . BASE_URL . "View/form.php?tab=login&status=error&message=Vui lòng đăng nhập quyền Admin!");
+    header("Location: " . BASE_URL . "View/auth.php?tab=login&status=error&message=Vui lòng đăng nhập quyền Admin!");
     exit();
 }
 

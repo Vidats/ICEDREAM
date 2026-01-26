@@ -9,7 +9,7 @@ $giohangModel = new GiohangModel($conn);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
     if (!isset($_SESSION['user_id'])) {
-        header('Location: ../View/form.php');
+        header('Location: ../View/auth.php');
         exit();
     }
 

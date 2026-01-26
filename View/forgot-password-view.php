@@ -23,7 +23,7 @@
                     </form>
                     
                     <div class="text-center mt-3">
-                        <a href="form.php" class="text-decoration-none small text-muted">Quay lại Đăng nhập</a>
+                        <a href="auth.php" class="text-decoration-none small text-muted">Quay lại Đăng nhập</a>
                     </div>
                 </div>
             </div>

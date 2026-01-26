@@ -5,7 +5,7 @@ require_once '../Model/UserModel.php';
 
 // Kiểm tra đăng nhập
 if (!isset($_SESSION['user_id'])) {
-    header("Location: ../View/form.php?tab=login");
+    header("Location: ../View/auth.php?tab=login");
     exit();
 }
 

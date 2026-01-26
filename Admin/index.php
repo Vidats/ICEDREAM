@@ -1,3 +1,6 @@
+<!-- Tài Khoản Admin: admin@gmail.com
+    Mật khẩu: admin -->
+
 <?php
 require_once __DIR__ . '/View/layouts/header.php';
 require_once __DIR__ . '/../Model/db.php';
