@@ -14,9 +14,9 @@ class SanphamModel extends BaseModel {
     }
 
     /**
-     * Lấy danh sách sản phẩm có bộ lọc category
+     * Lấy danh sách sản phẩm có bộ lọc category và phân trang
      */
-    public function getProducts($category_id = 0, $search = '') {
+    public function getProducts($category_id = 0, $search = '', $limit = 0, $offset = 0) {
         $sql = "SELECT * FROM products";
         $clauses = [];
 
@@ -35,7 +35,43 @@ class SanphamModel extends BaseModel {
         }
 
         $sql .= " ORDER BY id DESC";
+
+        if ($limit > 0) {
+            $limit = intval($limit);
+            $offset = intval($offset);
+            $sql .= " LIMIT $limit OFFSET $offset";
+        }
+
         return $this->conn->query($sql);
+    }
+
+    /**
+     * Đếm tổng số sản phẩm theo bộ lọc
+     */
+    public function getProductsCount($category_id = 0, $search = '') {
+        $sql = "SELECT COUNT(*) as total FROM products";
+        $clauses = [];
+
+        if (!empty($category_id)) {
+            $category_id = intval($category_id);
+            $clauses[] = "category_id = '$category_id'";
+        }
+
+        if (!empty($search)) {
+            $searchEsc = $this->escape($search);
+            $clauses[] = "name LIKE '%$searchEsc%'";
+        }
+
+        if (!empty($clauses)) {
+            $sql .= ' WHERE ' . implode(' AND ', $clauses);
+        }
+
+        $result = $this->conn->query($sql);
+        if ($result) {
+            $row = $result->fetch_assoc();
+            return (int)$row['total'];
+        }
+        return 0;
     }
 
     /**

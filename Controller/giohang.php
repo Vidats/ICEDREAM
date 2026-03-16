@@ -76,6 +76,17 @@ if (isset($_GET['action']) && isset($_GET['id'])) {
     
     if ($action == 'increase' || $action == 'decrease') {
         $giohangModel->updateQuantity($id, $action);
+        
+        // Kiểm tra lại coupon sau khi thay đổi số lượng
+        if (isset($_SESSION['coupon'])) {
+            $cart_items = $giohangModel->getCartItems();
+            $total = $giohangModel->getTotalPrice($cart_items);
+            $coupon = $couponModel->checkCoupon($_SESSION['coupon']['code'], $total);
+            if (!$coupon) {
+                unset($_SESSION['coupon']);
+                $_SESSION['coupon_error'] = "Mã giảm giá đã bị hủy do đơn hàng không còn đủ điều kiện!";
+            }
+        }
     } elseif ($action == 'remove') {
         $giohangModel->removeItem($id);
         
@@ -83,7 +94,11 @@ if (isset($_GET['action']) && isset($_GET['id'])) {
         if (isset($_SESSION['coupon'])) {
             $cart_items = $giohangModel->getCartItems();
             $total = $giohangModel->getTotalPrice($cart_items);
-            // Re-validate coupon logic could go here, but for simplicity we keep it until checkout or re-apply
+            $coupon = $couponModel->checkCoupon($_SESSION['coupon']['code'], $total);
+            if (!$coupon) {
+                unset($_SESSION['coupon']);
+                $_SESSION['coupon_error'] = "Mã giảm giá đã bị hủy do đơn hàng không còn đủ điều kiện!";
+            }
         }
     }
     header('Location: ../View/giohang.php');

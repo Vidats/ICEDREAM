@@ -28,10 +28,24 @@ if (empty($items)) {
     die("Giỏ hàng của bạn đang trống.");
 }
 $total_price = $giohangModel->getTotalPrice($items);
+$final_price = $total_price;
+
+// Áp dụng coupon nếu có
+require_once('../../Model/CouponModel.php');
+$couponModel = new CouponModel($conn);
+if (isset($_SESSION['coupon'])) {
+    $coupon = $couponModel->checkCoupon($_SESSION['coupon']['code'], $total_price);
+    if ($coupon) {
+        $discount_amount = $total_price * ($coupon['discount_percent'] / 100);
+        $final_price = $total_price - $discount_amount;
+    } else {
+        unset($_SESSION['coupon']);
+    }
+}
 
 // 3. Tạo đơn hàng với trạng thái "Đang xử lý"
 $status = 'Đang xử lý';
-$order_id = $orderModel->createOrder($user_id, $full_name, $email, $address, $total_price, $status);
+$order_id = $orderModel->createOrder($user_id, $full_name, $email, $address, $final_price, $status);
 
 if (!$order_id) {
     die("Lỗi: Không thể tạo đơn hàng trong cơ sở dữ liệu.");
@@ -46,7 +60,7 @@ foreach ($items as $item) {
 $db_order_id = $order_id; // Lưu ID đơn hàng từ DB
 $requestId = time() . "";
 $orderId = $db_order_id . "_" . $requestId; // Tạo orderId duy nhất cho MoMo
-$amount = (string)$total_price;
+$amount = (string)$final_price;
 $orderInfo = "Thanh toán đơn hàng Icedream #" . $db_order_id;
 $requestType = "payWithMethod";
 

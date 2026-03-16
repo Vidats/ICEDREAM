@@ -79,8 +79,7 @@ if (isset($_POST['verify'])) {
             $_SESSION['swal_type'] = 'success';
             $_SESSION['swal_title'] = 'Thành công!';
             $_SESSION['swal_message'] = 'Đổi mật khẩu thành công!';
-            auth.php;
-            header("Location: ../View/form.php");
+            header("Location: ../View/auth.php");
             exit();
         } else {
             $_SESSION['swal_type'] = 'error';

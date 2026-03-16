@@ -79,6 +79,36 @@ require_once '../Controller/sanpham.php';
         }
         ?>
     </div>
+
+    <!-- Phân trang -->
+    <?php if ($total_pages > 1): ?>
+    <nav aria-label="Page navigation" class="mt-5">
+        <ul class="pagination justify-content-center">
+            <?php if ($page > 1): ?>
+                <li class="page-item">
+                    <a class="page-link" href="?cat_id=<?= $category_id ?>&q=<?= urlencode($q) ?>&page=<?= $page - 1 ?>" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+            <?php endif; ?>
+
+            <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+                <li class="page-item <?= ($i == $page) ? 'active' : '' ?>">
+                    <a class="page-link" href="?cat_id=<?= $category_id ?>&q=<?= urlencode($q) ?>&page=<?= $i ?>"><?= $i ?></a>
+                </li>
+            <?php endfor; ?>
+
+            <?php if ($page < $total_pages): ?>
+                <li class="page-item">
+                    <a class="page-link" href="?cat_id=<?= $category_id ?>&q=<?= urlencode($q) ?>&page=<?= $page + 1 ?>" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            <?php endif; ?>
+        </ul>
+    </nav>
+    <?php endif; ?>
+</div>
 </div>
 
 <script>

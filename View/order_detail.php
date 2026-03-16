@@ -9,8 +9,7 @@ if (!isset($_SESSION['user_id'])) {
     $_SESSION['swal_type'] = 'warning';
     $_SESSION['swal_title'] = 'Thông báo';
     $_SESSION['swal_message'] = 'Vui lòng đăng nhập!';
-auth.php
-    header("Location: form.php");
+    header("Location: auth.php?tab=login");
     exit();
 }
 
