@@ -11,7 +11,7 @@
     <section class="about-content container py-5">
         <div class="row align-items-center g-5">
             <div class="col-lg-6">
-                <img src="../image/gt.jpg" class="img-fluid rounded-4 shadow" alt="Về chúng tôi">
+                <img src="../image/kemly.jpg" class="img-fluid rounded-4 shadow" alt="Về chúng tôi">
             </div>
             <div class="col-lg-6">
                 <h2 class="section-title">Hơn cả một ly kem...</h2>

@@ -71,12 +71,23 @@ if ($localSignature == $momoSignature) {
              exit();
         }
 
-        // Xử lý Redirect (GET)
-        if ($resultCode == 0) {
-            // Khôi phục phiên đăng nhập nếu bị mất
-            if (!isset($_SESSION['user_id'])) {
+        // Khôi phục phiên đăng nhập cho user redirect về (tránh bị đăng xuất)
+        require_once('../../Model/UserModel.php');
+        if (!isset($_SESSION['user_id']) || !isset($_SESSION['full_name'])) {
+            $userModel = new UserModel($conn);
+            $user = $userModel->getUserById($order['user_id']);
+            if ($user) {
+                $_SESSION['user_id'] = $user['id'];
+                $_SESSION['role'] = $user['role'];
+                $_SESSION['full_name'] = $user['full_name'];
+                $_SESSION['user_name'] = $user['full_name'];
+            } else {
                 $_SESSION['user_id'] = $order['user_id'];
             }
+        }
+
+        // Xử lý Redirect (GET)
+        if ($resultCode == 0) {
 
             // 1. Luôn xóa giỏ hàng khi thanh toán thành công
             $giohangModel->clearCart();

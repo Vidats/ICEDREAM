@@ -19,11 +19,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $soluong = isset($_POST['quantity']) ? intval($_POST['quantity']) : 1;
 
         if ($soluong > 0) {
-            $giohangModel->addToCart($id, $soluong);
-            
-            $_SESSION['swal_type'] = 'success';
-            $_SESSION['swal_title'] = 'Thành công!';
-            $_SESSION['swal_message'] = 'Đã thêm vào giỏ hàng!';
+            if ($giohangModel->addToCart($id, $soluong)) {
+                $_SESSION['swal_type'] = 'success';
+                $_SESSION['swal_title'] = 'Thành công!';
+                $_SESSION['swal_message'] = 'Đã thêm vào giỏ hàng!';
+            } else {
+                $_SESSION['swal_type'] = 'error';
+                $_SESSION['swal_title'] = 'Thất bại!';
+                $_SESSION['swal_message'] = 'Số lượng trong kho không đủ!';
+            }
             
             // Quay lại trang danh sách sản phẩm
             header('Location: ' . $_SERVER['HTTP_REFERER']); 
@@ -75,7 +79,11 @@ if (isset($_GET['action']) && isset($_GET['id'])) {
     $action = $_GET['action'];
     
     if ($action == 'increase' || $action == 'decrease') {
-        $giohangModel->updateQuantity($id, $action);
+        if (!$giohangModel->updateQuantity($id, $action)) {
+            $_SESSION['swal_type'] = 'error';
+            $_SESSION['swal_title'] = 'Lỗi!';
+            $_SESSION['swal_message'] = 'Không thể cập nhật số lượng (Vượt quá tồn kho)!';
+        }
         
         // Kiểm tra lại coupon sau khi thay đổi số lượng
         if (isset($_SESSION['coupon'])) {

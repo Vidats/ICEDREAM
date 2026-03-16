@@ -1,7 +1,8 @@
 /* --- TRANG GIỚI THIỆU --- */
 .about-hero {
-    background: linear-gradient(rgba(255, 133, 162, 0.6), rgba(255, 133, 162, 0.6)), 
-                url('../image/nenkem.jpg'); /* Thay bằng ảnh nền đẹp của bạn */
+    background: linear-gradient(rgba(255, 133, 162, 0.6), rgba(255, 133, 162, 0.6)),
+        url('../image/kemlyphucbontu.jpg');
+    /* Thay bằng ảnh nền đẹp của bạn */
     background-size: cover;
     background-position: center;
     padding: 100px 0;
@@ -12,7 +13,7 @@
 .about-hero h1 {
     font-size: 3.5rem;
     font-weight: 700;
-    text-shadow: 2px 2px 10px rgba(0,0,0,0.2);
+    text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
 }
 
 .feature-item {
@@ -30,7 +31,7 @@
     background: #fff;
     padding: 10px;
     border-radius: 50%;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
 }
 
 /* Mission Cards */

@@ -60,7 +60,7 @@ foreach ($items as $item) {
 $db_order_id = $order_id; // Lưu ID đơn hàng từ DB
 $requestId = time() . "";
 $orderId = $db_order_id . "_" . $requestId; // Tạo orderId duy nhất cho MoMo
-$amount = (string)$final_price;
+$amount = (string)round($final_price); // MoMo yêu cầu số nguyên (string)
 $orderInfo = "Thanh toán đơn hàng Icedream #" . $db_order_id;
 $requestType = "payWithMethod";
 

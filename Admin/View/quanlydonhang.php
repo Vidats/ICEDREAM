@@ -71,13 +71,13 @@ $orders = $orderController->getAllOrders();
                     <td>
                         <form method="POST" action="" class="d-flex gap-2">
                             <input type="hidden" name="order_id" value="<?= $order['id'] ?>">
-                            <select name="status" class="form-select form-select-sm" style="border-radius: 8px;">
+                            <select name="status" class="form-select form-select-sm" style="border-radius: 8px;" <?= $order['status'] == 'Đã hủy' ? 'disabled' : '' ?>>
                                 <option value="Đang xử lý" <?= $order['status'] == 'Đang xử lý' ? 'selected' : '' ?>>Đang xử lý</option>
                                 <option value="Đang giao" <?= $order['status'] == 'Đang giao' ? 'selected' : '' ?>>Đang giao</option>
                                 <option value="Hoàn thành" <?= $order['status'] == 'Hoàn thành' ? 'selected' : '' ?>>Hoàn thành</option>
                                 <option value="Đã hủy" <?= $order['status'] == 'Đã hủy' ? 'selected' : '' ?>>Đã hủy</option>
                             </select>
-                            <button type="submit" name="update_status" class="btn btn-sm btn-primary-custom" title="Lưu">
+                            <button type="submit" name="update_status" class="btn btn-sm btn-primary-custom" title="Lưu" <?= $order['status'] == 'Đã hủy' ? 'disabled' : '' ?>>
                                 <i class="fas fa-save"></i>
                             </button>
                         </form>

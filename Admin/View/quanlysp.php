@@ -21,6 +21,20 @@ while ($row = $categories_res->fetch_assoc()) {
     <a href="quanlysp.php" class="btn btn-outline-secondary btn-sm"><i class="fas fa-sync-alt"></i> Làm mới</a>
 </div>
 
+<?php if(isset($_GET['message'])): ?>
+    <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+        <i class="fas fa-check-circle me-2"></i> <?= htmlspecialchars($_GET['message']) ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+<?php endif; ?>
+
+<?php if(isset($_GET['error'])): ?>
+    <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i> <?= htmlspecialchars($_GET['error']) ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+<?php endif; ?>
+
 <div class="row">
     <!-- Form Section -->
     <div class="col-lg-4 mb-4">

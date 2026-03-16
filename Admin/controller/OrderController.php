@@ -21,6 +21,15 @@ class OrderController {
             $order_id = intval($_POST['order_id']);
             $status = mysqli_real_escape_string($this->conn, $_POST['status']);
             
+            // Check current status before updating
+            $currentOrder = $this->orderModel->getOrderById($order_id);
+            if ($currentOrder && $currentOrder['status'] === 'Đã hủy') {
+                $_SESSION['swal_type'] = 'error';
+                $_SESSION['swal_title'] = 'Lỗi!';
+                $_SESSION['swal_message'] = 'Không thể thay đổi trạng thái của đơn hàng đã bị hủy!';
+                header("Location: quanlydonhang.php");
+                exit();
+            }
 
 
             $result = $this->orderModel->updateOrderStatus($order_id, $status);

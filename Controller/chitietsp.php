@@ -17,11 +17,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_to_cart'])) {
     $soluong = intval($_POST['quantity']);
 
     if ($soluong > 0) {
-        $giohangModel->addToCart($id, $soluong); 
-        
-        $_SESSION['swal_type'] = 'success';
-        $_SESSION['swal_title'] = 'Thành công!';
-        $_SESSION['swal_message'] = 'Đã thêm sản phẩm vào giỏ hàng!';
+        if ($giohangModel->addToCart($id, $soluong)) {
+            $_SESSION['swal_type'] = 'success';
+            $_SESSION['swal_title'] = 'Thành công!';
+            $_SESSION['swal_message'] = 'Đã thêm sản phẩm vào giỏ hàng!';
+        } else {
+            $_SESSION['swal_type'] = 'error';
+            $_SESSION['swal_title'] = 'Thất bại!';
+            $_SESSION['swal_message'] = 'Không đủ số lượng sản phẩm trong kho!';
+        }
         
         // Redirect back to the same page (detail page)
         header('Location: ' . $_SERVER['HTTP_REFERER']);
